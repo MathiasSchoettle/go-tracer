@@ -13,12 +13,12 @@ func Create(w int, h int) Image {
 }
 
 func (i *Image) At(x int, y int) [3]int {
-	index := (x*i.width + y) * 3
+	index := (x*i.height + y) * 3
 	return [3]int(i.data[index : index+3])
 }
 
 func (i *Image) Set(x int, y int, v [3]int) {
-	index := (x*i.width + y) * 3
+	index := (x*i.height + y) * 3
 	i.data[index+0] = v[0]
 	i.data[index+1] = v[1]
 	i.data[index+2] = v[2]
@@ -29,7 +29,7 @@ func (i *Image) ToPPM() []byte {
 
 	for y := 0; y < i.height; y++ {
 		for x := 0; x < i.width; x++ {
-			index := (x*i.width + y) * 3
+			index := (x*i.height + y) * 3
 			pixel := i.data[index : index+3]
 			image += fmt.Sprintf("%d %d %d\n", pixel[0], pixel[1], pixel[2])
 		}
