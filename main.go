@@ -5,6 +5,7 @@ import (
 	img "go-raytrace/image"
 	"go-raytrace/ray"
 	"go-raytrace/vec"
+	"math"
 	"os"
 )
 
@@ -70,7 +71,7 @@ func main() {
 	}
 }
 
-func hitSphere(center vec.Vector3, radius float64, ray ray.Ray) bool {
+func hitSphere(center vec.Vector3, radius float64, ray ray.Ray) float64 {
 	oc := vec.Subtracted(center, ray.Origin)
 	a := vec.Dot(ray.Direction, ray.Direction)
 	b := -2.0 * vec.Dot(ray.Direction, oc)
@@ -78,12 +79,23 @@ func hitSphere(center vec.Vector3, radius float64, ray ray.Ray) bool {
 
 	discriminant := b*b - 4*a*c
 
-	return discriminant >= 0.0
+	if discriminant < 0 {
+		return -1.0
+	}
+
+	return (-b - math.Sqrt(discriminant)) / (2.0 * a)
 }
 
 func rayColor(ray ray.Ray) vec.Vector3 {
-	if hitSphere(vec.Of(0, 0, -1), 0.5, ray) {
-		return vec.Of(1, 0, 0)
+	t := hitSphere(vec.Of(0, 0, -1), 0.5, ray)
+
+	if t > 0.0 {
+		N := vec.Subtracted(ray.At(t), vec.Of(0, 0, -1))
+		N.Normalize()
+		color := vec.Of(1, 1, 1)
+		color.Add(N).Scale(0.5)
+
+		return color
 	}
 
 	direction := vec.Normalized(ray.Direction)
