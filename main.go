@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	img "go-raytrace/image"
-	. "go-raytrace/ray"
+	"go-raytrace/ray"
 	"go-raytrace/vec"
 	"os"
 )
@@ -50,9 +50,9 @@ func main() {
 			pixelCenter.Add(deltaV)
 
 			rayDir := vec.Subtracted(pixelCenter, cameraCenter)
-			ray := Ray{Origin: cameraCenter, Direction: rayDir}
+			cameraRay := ray.Ray{Origin: cameraCenter, Direction: rayDir}
 
-			color := rayColor(ray)
+			color := rayColor(cameraRay)
 
 			ir := int(255.999 * color.X())
 			ig := int(255.999 * color.Y())
@@ -62,7 +62,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("\n done")
+	fmt.Println("\ndone")
 
 	err := os.WriteFile("image.ppm", image.ToPPM(), 0777)
 	if err != nil {
@@ -70,7 +70,22 @@ func main() {
 	}
 }
 
-func rayColor(ray Ray) vec.Vector3 {
+func hitSphere(center vec.Vector3, radius float64, ray ray.Ray) bool {
+	oc := vec.Subtracted(center, ray.Origin)
+	a := vec.Dot(ray.Direction, ray.Direction)
+	b := -2.0 * vec.Dot(ray.Direction, oc)
+	c := vec.Dot(oc, oc) - radius*radius
+
+	discriminant := b*b - 4*a*c
+
+	return discriminant >= 0.0
+}
+
+func rayColor(ray ray.Ray) vec.Vector3 {
+	if hitSphere(vec.Of(0, 0, -1), 0.5, ray) {
+		return vec.Of(1, 0, 0)
+	}
+
 	direction := vec.Normalized(ray.Direction)
 	a := 0.5 * (direction.Y() + 1.0)
 	first := vec.Scaled(vec.Of(1, 1, 1), 1.0-a)
