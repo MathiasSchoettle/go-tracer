@@ -39,8 +39,6 @@ func main() {
 
 	pixel00Loc := vec.Added(viewportUpperLeft, vec.Scaled(vec.Added(pixelDeltaU, pixelDeltaV), 0.5))
 
-	fmt.Printf("%f, %f, %f\n", viewportU.X(), viewportU.Y(), viewportU.Z())
-
 	for y := 0; y < imageHeight; y++ {
 		fmt.Printf("\rScanlines remaining: %d", imageHeight-y)
 
@@ -73,17 +71,17 @@ func main() {
 
 func hitSphere(center vec.Vector3, radius float64, ray ray.Ray) float64 {
 	oc := vec.Subtracted(center, ray.Origin)
-	a := vec.Dot(ray.Direction, ray.Direction)
-	b := -2.0 * vec.Dot(ray.Direction, oc)
-	c := vec.Dot(oc, oc) - radius*radius
+	a := ray.Direction.LengthSquared()
+	h := vec.Dot(ray.Direction, oc)
+	c := oc.LengthSquared() - radius*radius
 
-	discriminant := b*b - 4*a*c
+	discriminant := h*h - a*c
 
 	if discriminant < 0 {
 		return -1.0
 	}
 
-	return (-b - math.Sqrt(discriminant)) / (2.0 * a)
+	return (h - math.Sqrt(discriminant)) / a
 }
 
 func rayColor(ray ray.Ray) vec.Vector3 {
